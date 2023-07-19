@@ -32,6 +32,5 @@ body {
   background-color: lightblue;
   background: linear-gradient(lightblue, rgba(173, 216, 230, 0));
   border-radius: 5px;
-  transition: 0.3s ease left;
   height: 50%;
 }

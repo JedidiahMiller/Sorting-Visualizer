@@ -1,24 +1,38 @@
 
-
 export class Bar {
 
   constructor (parentElement) {
 
     this.parentElement = parentElement;
+    this.dragOffset = null;
 
     // Create html element
     this.element = document.createElement("div");
     this.element.className = "bar";
-
-    // Add dragging functionality
-    this.isBeingDragged = false;
-    this.element.addEventListener("mousedown", () => this.isBeingDragged = true);
-    this.parentElement.addEventListener("mousemove", () => console.log("Element drag attempt"));
-    this.parentElement.addEventListener("mouseup", () => this.isBeingDragged = false);
-
-
     this.parentElement.appendChild(this.element);
 
+    this.element.onmousedown = (e) => this.startDraggingElement(e);
+
+  }
+
+  startDraggingElement(e) {
+    e.preventDefault();
+    this.dragOffset = e.clientX - this.element.getBoundingClientRect().left
+    document.onmousemove = (e) => this.dragElement(e);
+    document.onmouseup = (e) => this.endDrag(e)
+  }
+
+  dragElement(e) {
+    var location = e.clientX - this.parentElement.getBoundingClientRect().left - this.dragOffset;
+    location = location;
+    this.element.style.left = location + "px";
+
+    console.log(e.clientX, this.parentElement.getBoundingClientRect.left)
+  }
+
+  endDrag(e) {
+    document.onmousemove = null;
+    document.onmouseup = null;
   }
 
 }
@@ -85,18 +99,19 @@ export class Animator {
     this.scene = scene;
     this.animationIsPaused = false;
     this.currentFrame = 0;
-    this.animationSteps = undefined;
-    this.speed = 500;
+    this.animationFrames = undefined;
+    this.delay = 500;
   }
 
   runAnimation(frame) {
     setTimeout(() => {
-      if (!this.animationIsPaused) {
-
+      if (frame > this.animationFrames.length - 1) {
+        return;
+      } else if (!this.animationIsPaused && this.frame != this.animationFrames.length - 1) {
+        this.scene.swapBars(this.animationFrames[frame][0], this.animationFrames[frame][1])
+        this.runAnimation(frame + 1);
       }
-    }, this.speed)
+    }, this.delay)
   }
-
-
 
 }
