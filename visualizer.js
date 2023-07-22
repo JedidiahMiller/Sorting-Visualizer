@@ -9,6 +9,7 @@ export class Bar {
     // Create html element
     this.element = document.createElement("div");
     this.element.className = "bar";
+    this.element.innerHTML = Math.random();
     this.parentElement.appendChild(this.element);
 
     this.element.onmousedown = (e) => this.startDraggingElement(e);
@@ -24,10 +25,7 @@ export class Bar {
 
   dragElement(e) {
     var location = e.clientX - this.parentElement.getBoundingClientRect().left - this.dragOffset;
-    location = location;
     this.element.style.left = location + "px";
-
-    console.log(e.clientX, this.parentElement.getBoundingClientRect.left)
   }
 
   endDrag(e) {
@@ -67,11 +65,14 @@ export class Scene {
     // This function will have to handle communicating movement to bars
     const temp = this.children[index1];
     this.children[index1] = this.children[index2];
-    this.children[index2] = this.children[temp];
+    this.children[index2] = temp;
 
+    this.updateElementPositions(index1, index2);
   }
 
-  updateElementPositions(elements) {
+  // Provide index parameter to limit update to selected elements
+  // Defaults to updating all
+  updateElementPositions(indexes) {
     if (arguments.length == 0) {
       for (var index in this.children) {
         this.children[index].element.style.left = (index * (this.sceneElement.clientWidth / this.children.length)) + "px";
@@ -87,7 +88,7 @@ export class Scene {
   updateElementWidths() {
     const width = this.sceneElement.clientWidth / this.children.length
     for (var child of this.children) {
-      child.element.style.width = width + "px"
+      child.element.style.width = width + "px";
     }
   }
 
@@ -111,7 +112,7 @@ export class Animator {
         this.scene.swapBars(this.animationFrames[frame][0], this.animationFrames[frame][1])
         this.runAnimation(frame + 1);
       }
-    }, this.delay)
+    }, this.delay);
   }
 
 }
