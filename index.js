@@ -1,9 +1,11 @@
-import {Bar, Scene} from "./visualizer.js"
+import BarManager from "./BarManager.js";
 
 console.log("Js running")
 
-const scene = new Scene(document.getElementById("scene"))
+const sceneElement = document.getElementById("scene");
 
-scene.createChild(5);
+const barManager = new BarManager(sceneElement);
 
-document.getElementById("swapStuff").onclick = () => scene.swapBars(0,2);
+barManager.createBars(5);
+
+document.getElementById("swapStuff").onclick = () => barManager.swapBars(0,2,true);
