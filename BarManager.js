@@ -91,7 +91,8 @@ export default class BarManager {
   // Default is to update all bars
   updateBarPosition(index, animate=false, speed=undefined) {
 
-      this.#bars[index].setPosition(this.#getPositionFromIndex(index), animate, speed);
+    console.log("Updating")
+    this.#bars[index].setPosition(this.#getPositionFromIndex(index), animate, speed);
 
   }
 

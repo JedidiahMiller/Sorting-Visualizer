@@ -43,12 +43,14 @@ export default class Bar {
   // Setters
 
   setPosition(newPosition, animate, speed) {
+    console.log(this.getPosition());
     if (animate === undefined) { animate = false };
     if (animate) {
       this.#runMoveAnimation(this.getPosition(), newPosition, speed);
     } else {
       this.element.style.left = newPosition;
     }
+    console.log("Position set to ", newPosition)
   }
 
   getPosition() {
