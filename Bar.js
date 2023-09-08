@@ -1,7 +1,12 @@
-
+/**
+ * Bar object. This guy handles the position and width of the actual element, 
+ * but it is dumb and needs to be told exactly where to go. It's basically just 
+ * a convenient abstraction of code, it doesn't acually do anything without 
+ * being told exactly what to do.
+ */
 export default class Bar {
 
-  static currentId = 0;
+  static #currentId = 0;
 
   constructor (sceneElement) {
 
@@ -18,14 +23,20 @@ export default class Bar {
 
   }
 
-  // Private helper function
-  // 
-  // Even though the animation has ended, if the fill property is not none, it
-  // will hold that last position and resist any attempt to change it. 
-  // The cancel function can be run to fix this. Cancel is meant to stop the
-  // animation which seems to already be stopped, but it stops whatever thing
-  // is making that final position stay frozen
-  // 
+  /**
+   * Handles animating the moves
+   * 
+   * Note:
+   * Even though the animation has ended, if the fill property is not none, it 
+   * will hold that last position and resist any attempt to change it. 
+   * The cancel function can be run to fix this. Cancel is meant to stop the
+   * animation which seems to already be stopped, but it stops whatever thing
+   * is making that final position stay frozen
+   * 
+   * @param {*} oldPosition 
+   * @param {*} newPosition 
+   * @param {*} time 
+   */
   #runMoveAnimation(oldPosition, newPosition, time) {
 
     const keyframes = new KeyframeEffect(
@@ -44,8 +55,16 @@ export default class Bar {
     animation.play();
   }
 
-  // Setters
+  // Bunch of getters and setters. Yay.
 
+  /**
+   * This is just a fancy setter. It updates the element position and possibly 
+   * runs an animation while doing it.
+   * 
+   * @param {String} newPosition 
+   * @param {bool} animate 
+   * @param {int} speed 
+   */
   setPosition(newPosition, animate, speed) {
     if (animate === undefined) { animate = false };
     if (animate) {
