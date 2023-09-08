@@ -25,7 +25,7 @@ export default class BarManager {
         newBar.dragOffset = e.clientX - barElement.getBoundingClientRect().left;
         document.onmousemove = (e) => this.#dragBar(e, newBar);
         document.onmouseup = (e) => {
-          this.updateBarPosition(index, true, 50);
+          this.updateBarPosition(this.getIndexFromId(newBar.id), true, 50);
           document.onmousemove = null;
           document.onmouseup = null;
         }
@@ -53,14 +53,14 @@ export default class BarManager {
     const isMovingLeft = (newLocation < oldLocation);
     
     if (isMovingLeft) {
-      if (this.getBar(index - 1) === undefined) { return };
+      if (this.getBarFromIndex(index - 1) === undefined) { return };
       const rightPositionOfLeftBar = parseInt(this.#getPositionFromIndex(index - 1)) + barWidth;
       if (rightPositionOfLeftBar > centerOfMovingBar) {
         this.swapBars(index, index - 1, false, false);
         this.updateBarPosition(index, true, 50);
       }
     } else {
-      if (this.getBar(index + 1) === undefined) { return };
+      if (this.getBarFromIndex(index + 1) === undefined) { return };
       const leftPositionOfRightBar = parseInt(this.#getPositionFromIndex(index + 1));
       if (leftPositionOfRightBar < centerOfMovingBar) {
         this.swapBars(index, index + 1, false, false);
@@ -72,14 +72,13 @@ export default class BarManager {
 
   swapBars(index1, index2, animate=false, moveItems=true, speed=undefined) {
 
-    const barHolder = this.getBar(index1);
+    const barHolder = this.getBarFromIndex(index1);
     this.#bars[index1] = this.#bars[index2];
     this.#bars[index2] = barHolder;
 
     if (moveItems) {
-      console.log("moving items")
-      this.getBar(index1).setPosition(this.#getPositionFromIndex(index1), animate, speed);
-      this.getBar(index2).setPosition(this.#getPositionFromIndex(index2), animate, speed);
+      this.getBarFromIndex(index1).setPosition(this.#getPositionFromIndex(index1), animate, speed);
+      this.getBarFromIndex(index2).setPosition(this.#getPositionFromIndex(index2), animate, speed);
     }
 
   }
@@ -90,10 +89,7 @@ export default class BarManager {
 
   // Default is to update all bars
   updateBarPosition(index, animate=false, speed=undefined) {
-
-    console.log("Updating")
     this.#bars[index].setPosition(this.#getPositionFromIndex(index), animate, speed);
-
   }
 
   updateElementWidths() {
@@ -110,8 +106,17 @@ export default class BarManager {
     this.updateElementWidths();
   }
 
-  getBar(index) {
+  getBarFromIndex(index) {
     return this.#bars[index];
+  } 
+
+  getIndexFromId(id) {
+    for (let i = 0; i < this.#bars.length; i++) {
+      if (this.#bars[i].id == id) {
+        return i;
+      }
+    }
+    throw new Error("Bar with id " + id + " not found");
   }
 
 }

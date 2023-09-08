@@ -1,10 +1,14 @@
 
 export default class Bar {
 
+  static currentId = 0;
+
   constructor (sceneElement) {
 
     this.sceneElement = sceneElement;
     this.dragOffset = null;
+    this.id = Bar.currentId;
+    Bar.currentId++;
 
     // Create html element
     this.element = document.createElement("div");
@@ -43,14 +47,12 @@ export default class Bar {
   // Setters
 
   setPosition(newPosition, animate, speed) {
-    console.log(this.getPosition());
     if (animate === undefined) { animate = false };
     if (animate) {
       this.#runMoveAnimation(this.getPosition(), newPosition, speed);
     } else {
       this.element.style.left = newPosition;
     }
-    console.log("Position set to ", newPosition)
   }
 
   getPosition() {
@@ -63,6 +65,10 @@ export default class Bar {
 
   getWidth() {
     return this.element.style.width;
+  }
+
+  getId() {
+    return this.id;
   }
 
 }

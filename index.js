@@ -8,4 +8,6 @@ const barManager = new BarManager(sceneElement);
 
 barManager.createBars(5);
 
-document.getElementById("swapStuff").onclick = () => barManager.swapBars(0,2,true);
+document.getElementById("swapStuff").onclick = () => barManager.swapBars(0,2,true,true,300);
+
+window.onresize = () => barManager.updateAll();
