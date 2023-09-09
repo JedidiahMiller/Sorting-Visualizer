@@ -10,11 +10,12 @@ export default class BarManager {
 
   #bars;
   #sceneElement;
+  static #transitionTime = 123;
 
   /**
    * Do you normally even put comments on constructors?
    * 
-   * @param {*} sceneElement element to act as the container for the bar 
+   * @param {Element} sceneElement element to act as the container for the bar 
    * elements
    */
   constructor(sceneElement) {
@@ -41,16 +42,17 @@ export default class BarManager {
       this.#bars.push(newBar);
 
       // Allows bars to be dragged around and reordered
-      const barElement = newBar.element;
+      const barElement = newBar.getElement();
       barElement.onmousedown = (e) => {
+        console.log("Click")
 
         e.preventDefault();
         this.barBeingDragged = newBar;
-        newBar.dragOffset = e.clientX - barElement.getBoundingClientRect().left;
+        newBar.setDragOffset(e.clientX - barElement.getBoundingClientRect().left);
         document.onmousemove = (e) => this.#dragBar(e, newBar);
         document.onmouseup = (e) => {
           // Snap bar being dragged to location
-          this.updateBarPosition(this.getIndexFromId(newBar.id), true, 50);
+          this.updateBarPosition(this.getIndexFromId(newBar.getId()), true, BarManager.#transitionTime);
           document.onmousemove = null;
           document.onmouseup = null;
         }
@@ -61,18 +63,26 @@ export default class BarManager {
     this.updateAll();
   }
 
-
+  /**
+   * This is called when the mouse is moved during a drag event. It figures out 
+   * where to go and whether anything needs to move out of the way.
+   * 
+   * @param {Event} e 
+   * @param {Bar} bar 
+   * @returns void
+   */
   #dragBar(e, bar) {
 
+    console.log("Drag")
     // Get base data
 
     const index = this.#bars.findIndex((item) => item === bar);
     const barWidth = parseInt(this.#sceneElement.clientWidth) / this.#bars.length;
 
     // Figure out where the bar is being dragged and move it there
-    const newLocation = e.clientX - this.#sceneElement.getBoundingClientRect().left - bar.dragOffset;
+    const newLocation = e.clientX - this.#sceneElement.getBoundingClientRect().left - bar.getDragOffset();
     const oldLocation = parseInt(bar.getPosition());
-    bar.setPosition(newLocation + "px", false);
+    bar.setPosition(newLocation + "px", false, BarManager.#transitionTime);
 
     const centerOfMovingBar = newLocation + (barWidth / 2)
     const rightSidePositionOfLeftBar = 0;
@@ -85,14 +95,14 @@ export default class BarManager {
       const rightPositionOfLeftBar = parseInt(this.#getPositionFromIndex(index - 1)) + barWidth;
       if (rightPositionOfLeftBar > centerOfMovingBar) {
         this.swapBars(index, index - 1, false, false);
-        this.updateBarPosition(index, true, 50);
+        this.updateBarPosition(index, true, BarManager.#transitionTime);
       }
     } else {
       if (this.getBarFromIndex(index + 1) === undefined) { return };
       const leftPositionOfRightBar = parseInt(this.#getPositionFromIndex(index + 1));
       if (leftPositionOfRightBar < centerOfMovingBar) {
         this.swapBars(index, index + 1, false, false);
-        this.updateBarPosition(index, true, 50);
+        this.updateBarPosition(index, true, BarManager.#transitionTime);
       }
     }
 
@@ -107,7 +117,7 @@ export default class BarManager {
    * @param {bool} moveItems visually move elements, or just swap in the array
    * @param {int} speed defaults to 0 I think, so instant snap
    */
-  swapBars(index1, index2, animate=false, moveItems=true, speed=undefined) {
+  swapBars(index1, index2, animate=false, moveItems=true, speed=BarManager.#transitionTime) {
 
     // State update
     const barHolder = this.getBarFromIndex(index1);
@@ -140,7 +150,7 @@ export default class BarManager {
    * @param {bool} animate 
    * @param {int} speed 
    */
-  updateBarPosition(index, animate=false, speed=undefined) {
+  updateBarPosition(index, animate=false, speed=BarManager.#transitionTime) {
     this.#bars[index].setPosition(this.#getPositionFromIndex(index), animate, speed);
   }
 
@@ -186,7 +196,7 @@ export default class BarManager {
    */
   getIndexFromId(id) {
     for (let i = 0; i < this.#bars.length; i++) {
-      if (this.#bars[i].id == id) {
+      if (this.#bars[i].getId() == id) {
         return i;
       }
     }

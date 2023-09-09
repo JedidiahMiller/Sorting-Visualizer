@@ -8,18 +8,24 @@ export default class Bar {
 
   static #currentId = 0;
 
+  #element;
+  #dragOffset;
+  #sceneElement;
+  #id;
+  #value;
+
   constructor (sceneElement) {
 
-    this.sceneElement = sceneElement;
-    this.dragOffset = null;
-    this.id = Bar.currentId;
-    Bar.currentId++;
+    this.#sceneElement = sceneElement;
+    this.#dragOffset = null;
+    this.#id = Bar.#currentId;
+    Bar.#currentId++;
 
     // Create html element
-    this.element = document.createElement("div");
-    this.element.className = "bar";
-    this.element.innerHTML = Math.random();
-    this.sceneElement.appendChild(this.element);
+    this.#element = document.createElement("div");
+    this.#element.className = "bar";
+    this.setValue(this.#id);
+    this.#sceneElement.appendChild(this.#element);
 
   }
 
@@ -40,7 +46,7 @@ export default class Bar {
   #runMoveAnimation(oldPosition, newPosition, time) {
 
     const keyframes = new KeyframeEffect(
-      this.element,
+      this.#element,
       [{left: oldPosition},
       {left: newPosition}],
       {duration: time, fill: "none"}
@@ -49,7 +55,7 @@ export default class Bar {
     const animation = new Animation(keyframes);
 
     animation.onfinish = (event) => {
-      this.element.style.left = newPosition;
+      this.#element.style.left = newPosition;
     }
 
     animation.play();
@@ -66,28 +72,53 @@ export default class Bar {
    * @param {int} speed 
    */
   setPosition(newPosition, animate, speed) {
+    if (speed === undefined && animate) { 
+      animate = false; 
+      console.warn("setPosition() cannot be called without a specified speed. Animation will be disabled.");
+    };
     if (animate === undefined) { animate = false };
     if (animate) {
       this.#runMoveAnimation(this.getPosition(), newPosition, speed);
     } else {
-      this.element.style.left = newPosition;
+      this.#element.style.left = newPosition;
     }
   }
 
   getPosition() {
-    return this.element.style.left;
+    return this.#element.style.left;
   }
 
   setWidth(width) {
-    this.element.style.width = width;
+    this.#element.style.width = width;
   }
 
   getWidth() {
-    return this.element.style.width;
+    return this.#element.style.width;
   }
 
   getId() {
-    return this.id;
+    return this.#id;
+  }
+
+  getElement() {
+    return this.#element;
+  }
+
+  getDragOffset() {
+    return this.#dragOffset;
+  }
+
+  setDragOffset(i) {
+    this.#dragOffset = i;
+  }
+
+  getValue() {
+    return this.#value;
+  }
+
+  setValue(i) {
+    this.#value = i;
+    this.#element.innerHTML = i;
   }
 
 }
