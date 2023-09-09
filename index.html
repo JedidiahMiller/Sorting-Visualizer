@@ -6,12 +6,18 @@
   </head>
   <body>
     <h1>Loaded</h1>
-    <div id="scene"></div>
+    <div id="scene">
+      <!-- Populated by index.js -->
+    </div>
     <div id="controls">
-      <button id="pausePlay">Pause</button>
-      <input type="range" min="0" max="100" value="80">
-      <select>
-        <option value="bogoSort">Bogo Sort</option>
+      <button id="pausePlay" class="controlItem">Pause</button>
+      <div id="speedSliderContainer" class="controlItem">
+        <p id="speedSliderLabel">100%</p>
+        <input type="range" min="0" max="100" value="80" id="speedSlider">
+      </div>
+      <div class="spacer"></div>
+      <select class="controlItem" id="algorithmSelector">
+        <!-- Populated by controlBar.js -->
       </select>
      </div>
   </body>

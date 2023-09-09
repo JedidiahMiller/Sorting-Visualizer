@@ -203,4 +203,16 @@ export default class BarManager {
     throw new Error("Bar with id " + id + " not found");
   }
 
+  static getTransitionTime() {
+    return BarManager.#transitionTime;
+  }
+
+  static setTransitionTime(time) {
+    BarManager.#transitionTime = time;
+  }
+
+  getBars() {
+    return this.#bars;
+  }
+
 }
