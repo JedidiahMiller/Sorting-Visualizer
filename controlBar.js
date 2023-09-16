@@ -25,8 +25,9 @@ export default function initializeControlBar(algorithmExecutor) {
 
   // Algorithm Selector
   // 
-  // Yeah this isnt great, but I can't just do it in AlgorithmReferenceSheet.
-  // I'm guessing it's a trade off for being able to statically reference it.
+  // Yeah this isnt great having to hard code stuff in right here, but I can't 
+  // just do it in AlgorithmReferenceSheet. I'm guessing it's a trade off for 
+  // being able to statically reference the class.
   var algorithmDictionary = {}
   algorithmDictionary[ref.BUBBLE_SORT] = "Bubble sort";
 
@@ -39,7 +40,7 @@ export default function initializeControlBar(algorithmExecutor) {
 
   // Pause/play
   pausePlay.text = "Play";
-  pausePlay.onclick = algorithmExecutor.toggleRun() ? 
+  pausePlay.onclick = () => algorithmExecutor.toggleRun() ? 
     pausePlay.text = "Pause" : pausePlay.text = "Play";
 
 

@@ -48,13 +48,14 @@ body {
 
 #speedSlider {
   display: block;
-  visibility: hidden;
+  opacity: 0;
   width: 0em;
-  transition: width ease-out 0.1s;
+  transition: width ease-out 0.2s;
+  transition: opacity ease-out 0.1s;
 }
 
 #speedSliderContainer:hover #speedSlider {
-  visibility: visible;
+  opacity: 100;
   width: 5em;
   transition: width ease-out 0.2s;
 }

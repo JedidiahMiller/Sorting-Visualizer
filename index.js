@@ -1,5 +1,5 @@
 import BarManager from "./BarManager.js";
-import AlgorithmExecutor from "./AlgorithmExecutor.js"
+import AlgorithmExecutor from "./AlgorithmManager.js"
 import initializeControlBar from "./controlBar.js"
 
 console.log("Js running")

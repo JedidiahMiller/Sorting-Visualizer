@@ -8,9 +8,15 @@ import Bar from "./Bar.js";
  */
 export default class BarManager {
 
-  #bars;
+  #bars = [];
   #sceneElement;
+
+  // Time animations take to run
   static #transitionTime = 123;
+
+  // event handlers
+  onArrayOrderChange;
+  onArraySizeChange;
 
   /**
    * Do you normally even put comments on constructors?
@@ -19,7 +25,6 @@ export default class BarManager {
    * elements
    */
   constructor(sceneElement) {
-    this.#bars = [];
     this.#sceneElement = sceneElement;
   }
 
@@ -44,7 +49,6 @@ export default class BarManager {
       // Allows bars to be dragged around and reordered
       const barElement = newBar.getElement();
       barElement.onmousedown = (e) => {
-        console.log("Click")
 
         e.preventDefault();
         this.barBeingDragged = newBar;
@@ -58,8 +62,11 @@ export default class BarManager {
         }
         
       }
+
+      // Run event handler if present
+      if (this.onArraySizeChange) this.onArraySizeChange();
     }
-    // Sets widths and positions
+    // Update widths and positions of bars
     this.updateAll();
   }
 
@@ -73,7 +80,6 @@ export default class BarManager {
    */
   #dragBar(e, bar) {
 
-    console.log("Drag")
     // Get base data
 
     const index = this.#bars.findIndex((item) => item === bar);
@@ -129,6 +135,9 @@ export default class BarManager {
       this.getBarFromIndex(index1).setPosition(this.#getPositionFromIndex(index1), animate, speed);
       this.getBarFromIndex(index2).setPosition(this.#getPositionFromIndex(index2), animate, speed);
     }
+
+    // Run event handler if present
+    if (this.onArrayOrderChange) this.onArrayOrderChange();
 
   }
 
