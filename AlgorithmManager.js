@@ -1,7 +1,7 @@
 
-import ref from "./AlgorithmReferenceSheet.js";
-
-
+import refSheet from "./AlgorithmReferenceSheet.js";
+import FramePlayer from "./FramePlayer.js";
+import bubbleSort from "./Algorithms/bubbleSort.js"
 
 /**
  * This will eventually handle running all of the sorting algorithms
@@ -11,14 +11,21 @@ import ref from "./AlgorithmReferenceSheet.js";
 export default class AlgorithmManager {
 
   #barManager;
-  #runSpeed;
-  #currentAlgorithm;
-  #currentSteps = [];
+  #framePlayer;
+  #runSpeed = 500;
+  #currentAlgorithm = refSheet.BUBBLE_SORT;
+  #algorithmSteps = [];
+  #currentStep = 0;
   #isPlaying = false;
   #arrayInput = [];
 
   constructor(barManager) {
-    this.#barManager = barManager;
+    this.#barManager = barManager;    
+    // Set callback function so array will update when changed
+    this.#barManager.onArraySizeChange = () => {
+      this.setArrayInput(this.#barManager.getArray());
+    }
+    this.#framePlayer = new FramePlayer(() => this.#runFrame, this.#runSpeed);
   }
    
 
@@ -31,31 +38,53 @@ export default class AlgorithmManager {
   #generateStepsForArray(arrayToSort) {
     
     switch (this.#currentAlgorithm) {
-      case ref.BUBBLE_SORT:
+      case refSheet.BUBBLE_SORT:
         return bubbleSort(arrayToSort);
 
     }
 
+    throw new Error("Current algorithm code is not valid");
   } 
 
   updateSteps() {
-    this.#currentSteps = this.#generateStepsForArray(this.#arrayInput);
+    this.#algorithmSteps = this.#generateStepsForArray(this.#arrayInput);
   }
 
-  runStep(index) {
-    console.log(this.#currentSteps)
-    var step = this.#currentSteps[index];
-    if (step[0] === ref.SWAP_ELEMENTS) {
+  #runStep(index) {
+    var step = this.#algorithmSteps[index];
+    if (step[0] === refSheet.SWAP_ELEMENTS) {
       this.#barManager.swapBars(step[1], step[2], true, true);
     }
+  }
+
+  #runFrame() {
+    if (this.#currentStep == this.#algorithmSteps.length) {
+      this.pause();
+      return;
+    }
+    this.#runStep(this.#currentStep);
+    this.#currentStep += 1;
   }
 
   setArrayInput(array) {
     this.#arrayInput = array;
   }
 
-  setIsPlaying(value) {
-    this.value = value;
+  play() {
+    if (this.#currentStep == this.#algorithmSteps.length) this.#currentStep = 0;
+    this.#isPlaying = true;
+    this.#framePlayer.start();
+    console.log("Play");
+  }
+
+  pause() {
+    this.#isPlaying = false;
+    this.#framePlayer.stop();
+    console.log("Pause");
+  }
+
+  isPlaying() {
+    return this.#isPlaying;
   }
 
 

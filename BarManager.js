@@ -60,12 +60,14 @@ export default class BarManager {
           document.onmousemove = null;
           document.onmouseup = null;
         }
-        
       }
-
-      // Run event handler if present
-      if (this.onArraySizeChange) this.onArraySizeChange();
     }
+    // Run event handler if present
+    if (this.onArraySizeChange) {
+      this.onArraySizeChange();
+      if (this.onArrayOrderChange) this.onArrayOrderChange();
+    }
+
     // Update widths and positions of bars
     this.updateAll();
   }
@@ -222,6 +224,12 @@ export default class BarManager {
 
   getBars() {
     return this.#bars;
+  }
+
+  getArray () {
+    console.log("getArray returning", this.#bars.map(x => x.getValue()));
+    
+    return this.#bars.map((bar) => bar.getValue());
   }
 
 }

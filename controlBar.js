@@ -1,8 +1,13 @@
 import ref from "./AlgorithmReferenceSheet.js"
+import AlgorithmManager from "./AlgorithmManager.js";
 
-export default function initializeControlBar(algorithmExecutor) {
+export default function initializeControlBar(algorithmManager) {
 
-  if (algorithmExecutor === null) {
+  if (!(algorithmManager instanceof AlgorithmManager)) {
+    throw new Error("Control bar cannot be initialized without proper AlgorithmManager instance parameter");
+  }
+
+  if (algorithmManager === null) {
     throw new Error("initializeControlBar() missing algorithmExecutor parameter")
   }
 
@@ -39,9 +44,16 @@ export default function initializeControlBar(algorithmExecutor) {
   }
 
   // Pause/play
-  pausePlay.text = "Play";
-  pausePlay.onclick = () => algorithmExecutor.toggleRun() ? 
-    pausePlay.text = "Pause" : pausePlay.text = "Play";
-
+  pausePlay.innerHTML = "Play";
+  pausePlay.onclick = () => {
+    if (algorithmManager.isPlaying()) {
+      algorithmManager.pause();
+      pausePlay.innerHTML = "Play";
+  
+    } else {
+      algorithmManager.play();
+      pausePlay.innerHTML = "Pause";
+    }
+  }
 
 }

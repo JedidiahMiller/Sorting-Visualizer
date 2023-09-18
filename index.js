@@ -1,5 +1,5 @@
 import BarManager from "./BarManager.js";
-import AlgorithmExecutor from "./AlgorithmManager.js"
+import AlgorithmManager from "./AlgorithmManager.js"
 import initializeControlBar from "./controlBar.js"
 
 console.log("Js running")
@@ -7,8 +7,8 @@ console.log("Js running")
 const sceneElement = document.getElementById("scene");
 
 const barManager = new BarManager(sceneElement);
-const algorithmExecutor = new AlgorithmExecutor(barManager);
-initializeControlBar(algorithmExecutor);
+const algorithmManager = new AlgorithmManager(barManager);
+initializeControlBar(algorithmManager);
 
 barManager.createBars(5);
 
