@@ -13,4 +13,6 @@ export default function bubbleSort(array) {
     }
     topLine -= 1;
   }
+
+  return stepsList;
 }

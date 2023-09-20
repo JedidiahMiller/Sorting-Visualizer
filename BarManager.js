@@ -62,11 +62,10 @@ export default class BarManager {
         }
       }
     }
-    // Run event handler if present
-    if (this.onArraySizeChange) {
-      this.onArraySizeChange();
-      if (this.onArrayOrderChange) this.onArrayOrderChange();
-    }
+    // Run event handlers if present
+    // Array size change is also consitered an array order change
+    if (this.onArraySizeChange) this.onArraySizeChange();
+    if (this.onArrayOrderChange) this.onArrayOrderChange();
 
     // Update widths and positions of bars
     this.updateAll();
