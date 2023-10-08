@@ -42,4 +42,8 @@ export default class FramePlayer {
     return this.#isRunning;
   }
 
+  setTimeInterval(time) {
+    this.#timeInterval = time;
+  }
+
 }

@@ -13,18 +13,23 @@ export default class Bar {
   #sceneElement;
   #id;
   #value;
+  #currentAnimation;
 
-  constructor (sceneElement) {
+  constructor (sceneElement, value) {
 
+    // Used to create element 
     this.#sceneElement = sceneElement;
+
+    // This is refered to by barManager when handling drag operations
     this.#dragOffset = null;
-    this.#id = Bar.#currentId;
-    Bar.#currentId++;
+
+    // Id is used to find elements within various arrays
+    this.#id = Bar.createId();
 
     // Create html element
     this.#element = document.createElement("div");
     this.#element.className = "bar";
-    this.setValue(this.#id);
+    this.setValue(value === undefined ? this.#id : value);
     this.#sceneElement.appendChild(this.#element);
 
   }
@@ -43,7 +48,9 @@ export default class Bar {
    * @param {*} newPosition 
    * @param {*} time 
    */
-  #runMoveAnimation(oldPosition, newPosition, time) {
+  #runMoveAnimation(oldPosition, newPosition, time, onAnimationEnd=null) {
+
+    console.log("running move animation with time", time)
 
     const keyframes = new KeyframeEffect(
       this.#element,
@@ -52,17 +59,16 @@ export default class Bar {
       {duration: time, fill: "none"}
     );
 
-    const animation = new Animation(keyframes);
-
-    animation.onfinish = (event) => {
+    this.#currentAnimation = new Animation(keyframes);
+    this.#currentAnimation.onfinish = (event) => {
       this.#element.style.left = newPosition;
+      if (onAnimationEnd) onAnimationEnd();
     }
 
-    animation.play();
+    this.#currentAnimation.play();
   }
 
-  // Bunch of getters and setters. Yay.
-
+  
   /**
    * This is just a fancy setter. It updates the element position and possibly 
    * runs an animation while doing it.
@@ -71,19 +77,31 @@ export default class Bar {
    * @param {bool} animate 
    * @param {int} speed 
    */
-  setPosition(newPosition, animate, speed) {
-    if (speed === undefined && animate) { 
-      animate = false; 
-      console.warn("setPosition() cannot be called without a specified speed. Animation will be disabled.");
-    };
-    if (animate === undefined) { animate = false };
+  setPosition(newPosition, animate=false, speed) {
+    console.log("setting position with", speed);
+    if (animate && speed === undefined) {
+      console.warn("Animation will be disabled unless given a valid speed parameter");
+    }
     if (animate) {
       this.#runMoveAnimation(this.getPosition(), newPosition, speed);
     } else {
       this.#element.style.left = newPosition;
     }
   }
-
+  
+  /**
+   * This generates ids for bars. This can return anything as long as it is of a 
+   * type that can be compared to itself using === (Aka, don't use ref. types).
+   * 
+   * @returns new id
+   */
+  static createId() {
+    Bar.#currentId++;
+    return Bar.#currentId;
+  }
+  
+  // Bunch of getters and setters. Yay.
+  
   getPosition() {
     return this.#element.style.left;
   }
@@ -120,5 +138,6 @@ export default class Bar {
     this.#value = i;
     this.#element.innerHTML = i;
   }
+
 
 }

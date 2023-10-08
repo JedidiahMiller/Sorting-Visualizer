@@ -15,12 +15,15 @@ export default function initializeControlBar(algorithmManager) {
   const speedSliderLabel = document.getElementById("speedSliderLabel");
   const algorithmSelector = document.getElementById("algorithmSelector");
   const pausePlay = document.getElementById("pausePlay");
-  
+  const MAX_SPEED = 5000;
+
   // Speed slider
   speedSlider.onmousedown = () => {
     speedSliderLabel.innerText = speedSlider.value + "%";
+    algorithmManager.setRunSpeed((parseInt(speedSlider.value) / 100) * MAX_SPEED);
     speedSlider.onmousemove = () => {
       speedSliderLabel.innerText = speedSlider.value + "%";
+      algorithmManager.setRunSpeed((parseInt(speedSlider.value) / 100) * MAX_SPEED);
     }
     speedSlider.onmouseup = () => {
       speedSlider.onmousemove = null;
@@ -44,15 +47,26 @@ export default function initializeControlBar(algorithmManager) {
   }
 
   // Pause/play
-  pausePlay.innerHTML = "Play";
+  pausePlay.innerText = "Play";
   pausePlay.onclick = () => {
     if (algorithmManager.isPlaying()) {
       algorithmManager.pause();
-      pausePlay.innerHTML = "Play";
+      pausePlay.innerText = "Play";
   
     } else {
       algorithmManager.play();
-      pausePlay.innerHTML = "Pause";
+      pausePlay.innerText = "Pause";
+    }
+  }
+  algorithmManager.onPlayStateChange = () => {
+    console.log(algorithmManager.isPlaying());
+    if (algorithmManager.isPlaying()) {
+      console.log(algorithmManager.isPlaying(), "So i should say pause");
+      pausePlay.innerText = "Pause";
+    } else {
+      console.log(algorithmManager.isPlaying(), "So i should say play");
+      console.log(pausePlay.innerText)
+      pausePlay.innerText = "Play";
     }
   }
 

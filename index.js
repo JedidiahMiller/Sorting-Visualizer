@@ -10,6 +10,6 @@ const barManager = new BarManager(sceneElement);
 const algorithmManager = new AlgorithmManager(barManager);
 initializeControlBar(algorithmManager);
 
-barManager.createBars(5);
+barManager.createBars(6);
 
 window.onresize = () => barManager.updateAll();
