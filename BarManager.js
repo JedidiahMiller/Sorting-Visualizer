@@ -8,34 +8,25 @@ import Bar from "./Bar.js";
  */
 export default class BarManager {
 
-  speedOfDragAnimations = 50;
-  #baseArray = [];
-  #visualArray = [];
-  #sortedArray = [];
-
-  #sceneElement;
-
-  // Time animations take to run
-  #transitionTime;
+  // Array states
+  #baseState = [];
+  #visualState = [];
 
   // event handlers
-  onBaseArrayChange;
-  onBaseArraySizeChange;
-  onVisualArrayOrderChange;
+  onBaseStateChange;
+  onVisualStateChange;
+
+  // Other
+  #sceneElement;
+  #animationSpeedMultiplier;
 
   /**
-   * Do you normally even put comments on constructors?
+   * Constructor.
    * 
    * @param {Element} sceneElement element to act as the container for the bar 
    * elements
    */
-  constructor(sceneElement, defaultTransitionSpeed) {
-    if (defaultTransitionSpeed === undefined) {
-      this.setTransitionTime(1000);
-      console.warn("BarManager default transition speed was not set. This may cause unexpected behavior");
-    } else {
-      this.setTransitionTime(defaultTransitionSpeed);
-    }
+  constructor(sceneElement) {
     this.#sceneElement = sceneElement;
   }
 
@@ -54,30 +45,40 @@ export default class BarManager {
       // adding it to the screen
       const newBar = new Bar(this.#sceneElement);
 
-      // Add bar to bar array
-      this.#visualArray.push(newBar);
+      // Add bar to the visual state
+      this.#visualState.push(newBar);
 
-      // Allows bars to be dragged around and reordered
-      const barElement = newBar.getElement();
-      barElement.onmousedown = (e) => {
+      // Add event listeners so bar can be dragged
+      const newBarElement = newBar.getElement();
 
+      newBarElement.onmousedown = (e) => {
+
+        // Prevent strange behavior
         e.preventDefault();
-        this.barBeingDragged = newBar;
-        newBar.setDragOffset(e.clientX - barElement.getBoundingClientRect().left);
-        document.onmousemove = (e) => this.#dragBar(e, newBar);
+
+        // Maintain an offset value so an element can be dragged from its edge 
+        // without trying to center itself on the mouse position
+        var dragOffset = e.clientX - newBarElement.getBoundingClientRect().left;
+
+        // Drag the bar around
+        document.onmousemove = (e) => this.#dragBar(e, newBar, dragOffset);
+
+        // Cleanup on drag completion
         document.onmouseup = (e) => {
           // Snap bar being dragged to location
-          this.updateBarPosition(this.getIndexFromId(newBar.getId()), true, this.speedOfDragAnimations);
+          this.updateBarPosition(this.getIndexFromId(newBar.getId()));
+          // Clear event listeners
           document.onmousemove = null;
           document.onmouseup = null;
         }
       }
     }
-    // Run event handlers if present
-    // Array size change is also consitered an array order change
+
+    // Update base array
     this.captureNewBaseArray();
-    this.#baseArrayChanged();
-    if (this.onBaseArraySizeChange) this.onBaseArraySizeChange();
+
+    // Run visualStateChanged event listener
+    if (this.onVisualStateChange) this.onVisualStateChange();
 
     // Update widths and positions of bars
     this.updateAll();
@@ -91,53 +92,88 @@ export default class BarManager {
    * @param {Bar} bar 
    * @returns void
    */
-  #dragBar(e, bar) {
+  #dragBar(e, bar, dragOffset) {
 
-    const index = this.#visualArray.findIndex((item) => item === bar);
-    const barWidth = parseInt(this.#sceneElement.clientWidth) / this.#visualArray.length;
+    // Find the index of the bar being dragged
+    const index = this.#visualState.findIndex((item) => item === bar);
 
-    // Figure out where the bar is being dragged and move it there
-    const newLocation = e.clientX - this.#sceneElement.getBoundingClientRect().left - bar.getDragOffset();
+    // Figure out where stuff is moving
+    const barWidth = parseInt(this.#sceneElement.clientWidth) / this.#visualState.length;
+    const newLocation = e.clientX - this.#sceneElement.getBoundingClientRect().left - dragOffset;
     const oldLocation = parseInt(bar.getPosition());
-    bar.setPosition(newLocation + "px", false, this.speedOfDragAnimations);
-
     const centerOfMovingBar = newLocation + (barWidth / 2)
     const isMovingLeft = (newLocation < oldLocation);
+
+    // Set position of bar being dragged
+    bar.setPosition(newLocation + "px", {moveDuration: 0});
     
     var barsWereSwapped = false
+
     // Figures out if the bar has been dragged far enough to swap with another
     if (isMovingLeft) {
-      if (this.#visualArray[index - 1] === undefined) { return };
+
+      // Check for index out of bounds
+      if (this.#visualState[index - 1] === undefined) { return };
+
       const rightPositionOfLeftBar = parseInt(this.#getPositionFromIndex(index - 1)) + barWidth;
+
+      // Swap
       if (rightPositionOfLeftBar > centerOfMovingBar) {
-        this.swapVisualArrayBars(index, index - 1, this.speedOfDragAnimations);
+
+        // Swap elements in array
+        const temp = this.#visualState[index];
+        this.#visualState[index] = this.#visualState[index - 1];
+        this.#visualState[index - 1] = temp;
+
+        // Set position of bar that was affected (index has changed)
+        this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {moveDuration: 0});
+
+        // Flag that the visual state changed due to dragging elements
         barsWereSwapped = true;
       }
+
     } else {
-      if (this.#visualArray[index + 1] === undefined) { return };
+
+      // Check for index out of bounds
+      if (this.#visualState[index + 1] === undefined) { return };
+
       const leftPositionOfRightBar = parseInt(this.#getPositionFromIndex(index + 1));
+
+      // Swap
       if (leftPositionOfRightBar < centerOfMovingBar) {
-        this.swapVisualArrayBars(index, index + 1, this.speedOfDragAnimations);
+        // Swap elements in array
+        const temp = this.#visualState[index];
+        this.#visualState[index] = this.#visualState[index + 1];
+        this.#visualState[index + 1] = temp;
+
+        // Set position of bar that was affected (index has changed)
+        this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {moveDuration: 0});
+
+        // Flag that the visual state changed due to dragging elements
         barsWereSwapped = true;
       }
     }
+
     if (barsWereSwapped) {
       this.captureNewBaseArray();
-      if (this.onVisualArrayOrderChange) this.onVisualArrayOrderChange();
+      if (this.onVisualStateChange) this.onVisualStateChange();
     }
   }
   
   /**
-   * This copies the visual state to the base array
+   * This copies the visual state to the base state.
    */
   captureNewBaseArray() {
+    this.#baseState = [...this.#visualState];
+    // Event listener
+    if (this.onBaseStateChange) this.onBaseStateChange();
+  }
 
-    this.#baseArray = [...this.#visualArray];
-  
-    if (this.onBaseArrayChange) this.onBaseArrayChange();
-
-    const sizeChange = this.#baseArray.length != this.#visualArray.length;
-    if (sizeChange && this.onBaseArraySizeChange) this.onBaseArraySizeChange();
+  /**
+   * 
+   */
+  moveVisualBarToIndex(barIndex, newIndex, onFinish) {
+    this.#visualState[barIndex].setPosition(this.#getPositionFromIndex(newIndex), {onFinish: onFinish})
   }
 
   /**
@@ -145,25 +181,20 @@ export default class BarManager {
    * 
    * @param {int} index1 item to swap
    * @param {int} index2 other item to swap
-   * @param {bool} animate 
-   * @param {bool} moveItems visually move elements, or just swap in the array
-   * @param {int} speed defaults to 0 I think, so instant snap
    */
-  swapVisualArrayBars(index1, index2, speed=this.#transitionTime, updatePositions=true) {
+  swapVisualBars(index1, index2, onFinish) {
 
-    // Array update
-    const temp = this.#visualArray[index1];
-    this.#visualArray[index1] = this.#visualArray[index2];
-    this.#visualArray[index2] = temp;
+    // State update
+    const temp = this.#visualState[index1];
+    this.#visualState[index1] = this.#visualState[index2];
+    this.#visualState[index2] = temp;
 
-    // Visual update
-    this.#visualArray[index1].setPosition(this.#getPositionFromIndex(index1), true, speed);
-    this.#visualArray[index2].setPosition(this.#getPositionFromIndex(index2), true, speed);
+    // Position update
+    this.#visualState[index1].setPosition(this.#getPositionFromIndex(index1), {onFinish: onFinish});
+    this.#visualState[index2].setPosition(this.#getPositionFromIndex(index2), {onFinish: onFinish});
 
     // Run event handler if present
-    if (this.onVisualArrayOrderChange) this.onVisualArrayOrderChange();
-
-    console.log("Swapped indeces", index1, index2, "corresponding to values", this.#visualArray[index1].getValue(),this.#visualArray[index2].getValue())
+    if (this.onVisualStateChange) this.onVisualStateChange();
 
   }
 
@@ -175,7 +206,7 @@ export default class BarManager {
    * @returns a string of what the position should be. ei, "0px"
    */
   #getPositionFromIndex(index) {
-    return (index * (this.#sceneElement.clientWidth / this.#visualArray.length)) + "px";
+    return (index * (this.#sceneElement.clientWidth / this.#visualState.length)) + "px";
   }
 
   /**
@@ -183,10 +214,15 @@ export default class BarManager {
    * 
    * @param {int} index 
    * @param {bool} animate 
-   * @param {int} speed 
    */
-  updateBarPosition(index, animate=false, speed=this.#transitionTime) {
-    this.#visualArray[index].setPosition(this.#getPositionFromIndex(index), animate, speed);
+  updateBarPosition(index, onFinish) {
+    if (index === undefined) {
+      for (var bar in this.#visualState) {
+        bar.setPosition(this.#getPositionFromIndex(index), {onFinish: onFinish});
+      }
+    } else {
+      this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {onFinish: onFinish});
+    }
   }
 
   /**
@@ -195,10 +231,10 @@ export default class BarManager {
    */
   updateElementWidths() {
     console.log("Update width");
-    const width = this.#sceneElement.clientWidth / this.#visualArray.length;
-    console.log(this.#sceneElement.clientWidth, "/", this.#visualArray.length);
+    const width = this.#sceneElement.clientWidth / this.#visualState.length;
+    console.log(this.#sceneElement.clientWidth, "/", this.#visualState.length);
     console.log("The width for each will be", width);
-    for (const bar of this.#visualArray) {
+    for (const bar of this.#visualState) {
       bar.setWidth(width + "px");
     }
   }
@@ -208,8 +244,8 @@ export default class BarManager {
    * and window resizing updates
    */
   updateAll() {
-    for (var index in this.#visualArray) {
-      this.#visualArray[index].setPosition(this.#getPositionFromIndex(index), false);
+    for (var index in this.#visualState) {
+      this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {moveDuration: 0});
     }
 
     this.updateElementWidths();
@@ -224,43 +260,35 @@ export default class BarManager {
    * @returns 
    */
   getIndexFromId(id) {
-    for (let i = 0; i < this.#visualArray.length; i++) {
-      if (this.#visualArray[i].getId() == id) {
+    for (let i = 0; i < this.#visualState.length; i++) {
+      if (this.#visualState[i].getId() == id) {
         return i;
       }
     }
     throw new Error("Bar with id " + id + " not found");
   }
 
-  getTransitionTime() {
-    return this.#transitionTime;
-  }
-
-  setTransitionTime(time) {
-    this.#transitionTime = time;
-  }
-
   getBars() {
-    return this.#visualArray;
+    return this.#visualState;
   }
 
   getBaseArray () {
-    console.log("getBaseArray returning", this.#visualArray.map(x => x.getValue()));
+    console.log("getBaseArray returning", this.#visualState.map(x => x.getValue()));
     
-    return this.#visualArray.map((bar) => bar.getValue());
-  }
-
-  #baseArrayChanged() {
-    this.#baseArray = [];
-    for (var bar of this.#visualArray) {
-      this.#baseArray.push(bar);
-    }
-    if (this.onBaseArrayChange) this.onBaseArrayChange();
+    return this.#visualState.map((bar) => bar.getValue());
   }
 
   resetBars() {
-    this.#visualArray = [...this.#baseArray];
+    this.#visualState = [...this.#baseState];
     this.updateBarPosition();
+  }
+
+  setAnimationSpeedMultiplier(multiplier) {
+
+    this.#animationSpeedMultiplier = multiplier;
+    for (var bar of this.#visualState) {
+      bar.setAnimationSpeedMultiplier(this.#animationSpeedMultiplier);
+    }
   }
 
 }

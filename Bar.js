@@ -14,6 +14,7 @@ export default class Bar {
   #id;
   #value;
   #currentAnimation;
+  #animationSpeedMultiplier = 1;
 
   constructor (sceneElement, value) {
 
@@ -32,6 +33,8 @@ export default class Bar {
     this.setValue(value === undefined ? this.#id : value);
     this.#sceneElement.appendChild(this.#element);
 
+    if (this.getId() === 1) console.log("created");
+
   }
 
   /**
@@ -46,23 +49,23 @@ export default class Bar {
    * 
    * @param {*} oldPosition 
    * @param {*} newPosition 
-   * @param {*} time 
    */
-  #runMoveAnimation(oldPosition, newPosition, time, onAnimationEnd=null) {
-
-    console.log("running move animation with time", time)
+  #runMoveAnimation(oldPosition, newPosition, onFinish, moveDuration) {
 
     const keyframes = new KeyframeEffect(
       this.#element,
       [{left: oldPosition},
       {left: newPosition}],
-      {duration: time, fill: "none"}
+      {duration: moveDuration, fill: "none"}
     );
 
     this.#currentAnimation = new Animation(keyframes);
+    this.#currentAnimation.playbackRate = this.#animationSpeedMultiplier;
     this.#currentAnimation.onfinish = (event) => {
+      // Set position so it so it doesn't just snap back
       this.#element.style.left = newPosition;
-      if (onAnimationEnd) onAnimationEnd();
+      if (onFinish) onFinish();
+      this.#currentAnimation = null;
     }
 
     this.#currentAnimation.play();
@@ -75,18 +78,14 @@ export default class Bar {
    * 
    * @param {String} newPosition 
    * @param {bool} animate 
-   * @param {int} speed 
    */
-  setPosition(newPosition, animate=false, speed) {
-    console.log("setting position with", speed);
-    if (animate && speed === undefined) {
-      console.warn("Animation will be disabled unless given a valid speed parameter");
-    }
-    if (animate) {
-      this.#runMoveAnimation(this.getPosition(), newPosition, speed);
-    } else {
+  setPosition(newPosition, {onFinish: onFinish, moveDuration: moveDuration}) {
+
+    if (instant) {
       this.#element.style.left = newPosition;
+      return;
     }
+    this.#runMoveAnimation(this.getPosition(), newPosition, onFinish, moveDuration ? moveDuration : 1000);
   }
   
   /**
@@ -137,6 +136,13 @@ export default class Bar {
   setValue(i) {
     this.#value = i;
     this.#element.innerHTML = i;
+  }
+
+  setAnimationSpeedMultiplier(val) {
+    this.#animationSpeedMultiplier = val;
+    if (this.#currentAnimation != null) {
+      this.#currentAnimation.playbackRate = this.#animationSpeedMultiplier;
+    }
   }
 
 

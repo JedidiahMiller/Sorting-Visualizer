@@ -2,48 +2,50 @@
 
 export default class FramePlayer {
 
-  #frameAction;
-  #timeInterval;
-  #isRunning = false;
+  // State
+  #numberOfFrames;
+  #currentFrame;
+  #isRunning;
 
-  constructor(runFrame, timeInterval) {
-    this.#frameAction = runFrame;
-    this.#timeInterval = timeInterval;
-
-    if (this.#frameAction == null) throw new Error("FramePlayer must be provided all parameters (Missing action)");
-    if (this.#timeInterval == null) throw new Error("FramePlayer must be provided all parameters (Missing timeInterval)");
-  }
+  // Event listeners
+  onPlayStateChange;
 
   start() {
+
+    if (this.#currentFrame === this.#numberOfFrames - 1) this.reset();
+    
     this.#isRunning = true;
-    this.#runFrames();
+
+    if (this.onPlayStateChange) this.onPlayStateChange();
+
+    this.#runFrameCycle();
   }
 
-  stop() {
+  pause() {
     this.#isRunning = false;
+    if (this.onPlayStateChange) this.onPlayStateChange();
   }
 
-  #runFrame() {
-    console.log("Tick");
-    this.#frameAction();
+  reset() {
+
+    this.#currentFrame = 0;
   }
 
-  #runFrames() {
-    // Check for changes in pause state
-    if (this.#isRunning) {
-      this.#runFrame();
-      setTimeout(() => this.#runFrames(), this.#timeInterval);
-    } else {
-      this.stop();
-    }
+  #runFrameCycle() {
+
+    if (!this.#isRunning) return;
+    this.#runFrame(this.#currentFrame, this.#runFrameCycle);
+    this.#currentFrame += 1;
+    if (this.#currentFrame === this.#numberOfFrames) this.pause();
+
   }
 
-  isRunning() {
-    return this.#isRunning;
+  #runFrame(frameNumber) {
+    throw Error("runFrame() must be overridden");
   }
 
-  setTimeInterval(time) {
-    this.#timeInterval = time;
+  setFrameCount(count) {
+    this.#numberOfFrames = count;
   }
 
 }
