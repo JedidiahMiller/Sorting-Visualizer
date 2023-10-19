@@ -59,13 +59,9 @@ export default function initializeControlBar(algorithmManager) {
     }
   }
   algorithmManager.onPlayStateChange = () => {
-    console.log(algorithmManager.isPlaying());
     if (algorithmManager.isPlaying()) {
-      console.log(algorithmManager.isPlaying(), "So i should say pause");
       pausePlay.innerText = "Pause";
     } else {
-      console.log(algorithmManager.isPlaying(), "So i should say play");
-      console.log(pausePlay.innerText)
       pausePlay.innerText = "Play";
     }
   }

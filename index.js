@@ -2,8 +2,6 @@ import BarManager from "./BarManager.js";
 import AlgorithmManager from "./AlgorithmManager.js"
 import initializeControlBar from "./controlBar.js"
 
-console.log("Js running")
-
 const sceneElement = document.getElementById("scene");
 
 const barManager = new BarManager(sceneElement);

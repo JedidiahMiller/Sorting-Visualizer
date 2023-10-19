@@ -8,6 +8,8 @@ import Bar from "./Bar.js";
  */
 export default class BarManager {
 
+  #BAR_REORDERING_ANIMATION_SPEED = 100;
+
   // Array states
   #baseState = [];
   #visualState = [];
@@ -66,7 +68,8 @@ export default class BarManager {
         // Cleanup on drag completion
         document.onmouseup = (e) => {
           // Snap bar being dragged to location
-          this.updateBarPosition(this.getIndexFromId(newBar.getId()));
+          index = this.getIndexFromId(newBar.getId());
+          newBar.setPosition(this.#getPositionFromIndex(index), { moveDuration: this.#BAR_REORDERING_ANIMATION_SPEED });
           // Clear event listeners
           document.onmousemove = null;
           document.onmouseup = null;
@@ -81,7 +84,7 @@ export default class BarManager {
     if (this.onVisualStateChange) this.onVisualStateChange();
 
     // Update widths and positions of bars
-    this.updateAll();
+    this.updateAllWidthsAndPositions();
   }
 
   /**
@@ -126,7 +129,7 @@ export default class BarManager {
         this.#visualState[index - 1] = temp;
 
         // Set position of bar that was affected (index has changed)
-        this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {moveDuration: 0});
+        this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {moveDuration: this.#BAR_REORDERING_ANIMATION_SPEED});
 
         // Flag that the visual state changed due to dragging elements
         barsWereSwapped = true;
@@ -147,7 +150,7 @@ export default class BarManager {
         this.#visualState[index + 1] = temp;
 
         // Set position of bar that was affected (index has changed)
-        this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {moveDuration: 0});
+        this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {moveDuration: this.#BAR_REORDERING_ANIMATION_SPEED});
 
         // Flag that the visual state changed due to dragging elements
         barsWereSwapped = true;
@@ -217,11 +220,12 @@ export default class BarManager {
    */
   updateBarPosition(index, onFinish) {
     if (index === undefined) {
-      for (var bar in this.#visualState) {
-        bar.setPosition(this.#getPositionFromIndex(index), {onFinish: onFinish});
+      for (var index in this.#visualState) {
+        const position = this.#getPositionFromIndex(index);
+        this.#visualState[index].setPosition(position, {onFinish: onFinish, moveDuration: 0});
       }
     } else {
-      this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {onFinish: onFinish});
+      this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {onFinish: onFinish, moveDuration: 0});
     }
   }
 
@@ -230,10 +234,7 @@ export default class BarManager {
    * them.
    */
   updateElementWidths() {
-    console.log("Update width");
     const width = this.#sceneElement.clientWidth / this.#visualState.length;
-    console.log(this.#sceneElement.clientWidth, "/", this.#visualState.length);
-    console.log("The width for each will be", width);
     for (const bar of this.#visualState) {
       bar.setWidth(width + "px");
     }
@@ -241,13 +242,10 @@ export default class BarManager {
 
   /**
    * Updates the width and position of everything. Useful for program initiation
-   * and window resizing updates
+   * and window resizing updates.
    */
-  updateAll() {
-    for (var index in this.#visualState) {
-      this.#visualState[index].setPosition(this.#getPositionFromIndex(index), {moveDuration: 0});
-    }
-
+  updateAllWidthsAndPositions() {
+    this.updateBarPosition();
     this.updateElementWidths();
   }
 
@@ -272,9 +270,7 @@ export default class BarManager {
     return this.#visualState;
   }
 
-  getBaseArray () {
-    console.log("getBaseArray returning", this.#visualState.map(x => x.getValue()));
-    
+  getBaseArray () {    
     return this.#visualState.map((bar) => bar.getValue());
   }
 

@@ -27,7 +27,6 @@ export default class AlgorithmPlayer extends FramePlayer {
    * @returns array of commands to execute
    */
   #generateStepsFromArray(arrayToSort) {
-    console.log("Generating from array", arrayToSort);
     switch (this.#currentAlgorithm) {
       case refSheet.BUBBLE_SORT:
        return bubbleSort(arrayToSort);
@@ -45,7 +44,6 @@ export default class AlgorithmPlayer extends FramePlayer {
   #runFrame(frameNumber, onFinish) {
 
     if (step[0] === refSheet.SWAP_ELEMENTS) {
-      console.log("Attempting to swap", step[1], step[2], "from", step)
       this.#barManager.swapVisualArrayBars(step[1], step[2], this.speedMultiplier, onFinish);
     }
 

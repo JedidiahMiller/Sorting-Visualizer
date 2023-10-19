@@ -33,8 +33,6 @@ export default class Bar {
     this.setValue(value === undefined ? this.#id : value);
     this.#sceneElement.appendChild(this.#element);
 
-    if (this.getId() === 1) console.log("created");
-
   }
 
   /**
@@ -80,12 +78,8 @@ export default class Bar {
    * @param {bool} animate 
    */
   setPosition(newPosition, {onFinish: onFinish, moveDuration: moveDuration}) {
-
-    if (instant) {
-      this.#element.style.left = newPosition;
-      return;
-    }
-    this.#runMoveAnimation(this.getPosition(), newPosition, onFinish, moveDuration ? moveDuration : 1000);
+    moveDuration = moveDuration != undefined ? moveDuration  : 1000;
+    this.#runMoveAnimation(this.getPosition(), newPosition, onFinish, moveDuration);
   }
   
   /**
