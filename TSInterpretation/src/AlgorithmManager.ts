@@ -1,13 +1,14 @@
 
-import { AlgorithmTypes, AlgorithmActions, Frame } from "./AlgorithmDataTypes.js";
+import { ALGORITHM_TYPES, AlgorithmActions, Frame } from "./AlgorithmDataTypes.js";
 import FramePlayer from "./FramePlayer.js";
 import bubbleSort from "./Algorithms/bubbleSort.js"
+import selectionSort from "./Algorithms/selectionSort.js";
 import BarManager from "./BarManager.js"
 
 export default class AlgorithmPlayer extends FramePlayer {
 
   barManager;
-  currentAlgorithm = AlgorithmTypes.BUBBLE_SORT;
+  currentAlgorithm = 1;
 
   constructor(barManager: BarManager) {
     super();
@@ -16,7 +17,7 @@ export default class AlgorithmPlayer extends FramePlayer {
     this.barManager.onBaseStateChange = () => {
       // This is the only place where steps are generated
       this.reset();
-      this.frames = this.generateStepsFromArray(this.barManager.getBaseArray());
+      this.updateAlgorithmSteps();
     }
     this.barManager.onUserInteraction = () => this.pause();
   }
@@ -29,9 +30,12 @@ export default class AlgorithmPlayer extends FramePlayer {
    */
   generateStepsFromArray(arrayToSort: number[]) {
     switch (this.currentAlgorithm) {
-      case AlgorithmTypes.BUBBLE_SORT:
-       return bubbleSort(arrayToSort);
-
+      case 0:
+        console.log("Bubble sorting")
+        return bubbleSort(arrayToSort);
+      case 1:
+        console.log("Selection sorting")
+        return selectionSort(arrayToSort);
     }
     throw new Error("Current algorithm code is not valid, cannot generate steps");
   } 
@@ -55,6 +59,13 @@ export default class AlgorithmPlayer extends FramePlayer {
   pause() {
     super.pause();
     this.barManager.endAnimations();
+  }
+
+  /**
+   * Updates the algorithm steps
+   */
+  updateAlgorithmSteps() {
+    this.frames = this.generateStepsFromArray(this.barManager.getBaseArray());
   }
 
 }

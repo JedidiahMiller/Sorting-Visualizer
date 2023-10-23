@@ -1,9 +1,9 @@
 
 
-enum AlgorithmTypes {
-  // Sorting algorithms
-  BUBBLE_SORT = "Bubble Sort"
-}
+const ALGORITHM_TYPES = [
+  "Bubble Sort", 
+  "Selection Sort"
+]
 
 enum AlgorithmActions {
   SWAP_ELEMENTS = "Swap elements"
@@ -21,4 +21,4 @@ class Frame {
 
 }
 
-export { AlgorithmTypes, AlgorithmActions, Frame };
+export { ALGORITHM_TYPES, AlgorithmActions, Frame };

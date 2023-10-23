@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="index.js"  type="module" defer></script>
+    <script src="./TSInterpretation/build/index.js"  type="module" defer></script>
     <link rel="stylesheet" href="index.css">
   </head>
   <body>
-    <h1>Loaded</h1>
     <div id="scene">
       <!-- Populated by index.js -->
     </div>
@@ -13,7 +12,7 @@
       <button id="pausePlay" class="controlItem">Pause</button>
       <div id="speedSliderContainer" class="controlItem">
         <p id="speedSliderLabel">100%</p>
-        <input type="range" min="0" max="100" value="80" id="speedSlider">
+        <input type="range" min="1" max="100" value="80" id="speedSlider">
       </div>
       <div class="spacer"></div>
       <select class="controlItem" id="algorithmSelector">

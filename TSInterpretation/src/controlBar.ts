@@ -1,4 +1,4 @@
-import { AlgorithmTypes } from "./AlgorithmDataTypes.js"
+import { ALGORITHM_TYPES } from "./AlgorithmDataTypes.js"
 import AlgorithmManager from "./AlgorithmManager.js";
 
 export default function initializeControlBar(algorithmManager: AlgorithmManager) {
@@ -52,12 +52,17 @@ export default function initializeControlBar(algorithmManager: AlgorithmManager)
   }
 
   // Algorithm Selector
-  for (const key of Object.keys(AlgorithmTypes)) {
-
+  for (var i in ALGORITHM_TYPES) {
     const newOption = document.createElement("option");
-    newOption.value = key;
-    newOption.text = key;
+    newOption.value = i;
+    newOption.text = ALGORITHM_TYPES[i];
     algorithmSelector.appendChild(newOption);
+  }
+
+  algorithmSelector.onchange = () => {
+    algorithmManager.currentAlgorithm = parseInt(algorithmSelector.value);
+    algorithmManager.updateAlgorithmSteps();
+    
   }
 
   // Pause/play
