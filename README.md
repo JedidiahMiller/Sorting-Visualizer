@@ -1,6 +1,7 @@
 # Sorting-Visualizer
 
 This project aims to give the user a visualization of how various sorting algorithms can work within the constraints of a single array.
+The user is able to drag the bars around to create a custom array to sort, change the speed of the animation by hovering over it, and select a sorting algorithm.
 
 ## Running the code
 
