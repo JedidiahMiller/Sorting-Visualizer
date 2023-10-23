@@ -15,7 +15,6 @@ export default function selectionSort(baseArray) {
             array[indexOfCurrentSmallestNumber] = array[startingIndex];
             array[startingIndex] = temp;
             stepsList.push(new Frame(AlgorithmActions.SWAP_ELEMENTS, startingIndex, indexOfCurrentSmallestNumber));
-            console.log("SWAP");
         }
         startingIndex++;
     }

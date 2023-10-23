@@ -16,10 +16,8 @@ export default class AlgorithmPlayer extends FramePlayer {
     generateStepsFromArray(arrayToSort) {
         switch (this.currentAlgorithm) {
             case 0:
-                console.log("Bubble sorting");
                 return bubbleSort(arrayToSort);
             case 1:
-                console.log("Selection sorting");
                 return selectionSort(arrayToSort);
         }
         throw new Error("Current algorithm code is not valid, cannot generate steps");

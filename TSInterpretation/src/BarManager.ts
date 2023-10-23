@@ -316,7 +316,6 @@ export default class BarManager {
 
   setAnimationSpeedMultiplier(multiplier: number) {
     this.animationSpeedMultiplier = multiplier;
-    console.log("Setting to", multiplier);
     for (var bar of this.baseState) {
       bar.setAnimationSpeedMultiplier(multiplier);
     }
