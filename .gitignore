@@ -1,4 +1,3 @@
-TSInterpretation/build/*
 TSInterpretation/node_modules/*
 TSInterpretation/package-lock.json
 TSInterpretation/package.json
